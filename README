@@ -1,0 +1,10 @@
+# Tic Tac Toe Engine
+
+Use to learn how minimax & game state represtentation works for chess engine (chess_is_fun)
+
+## Implementation
+
+Pieces
+* X = False
+* O = True
+* Blank = None
