@@ -4,7 +4,20 @@ Use to learn how minimax & game state represtentation works for chess engine (ch
 
 ## Implementation
 
+```
+---------------- PLANNING ------------------
+
 Pieces
 * X = False
 * O = True
 * Blank = None
+
+Board
+* Just 2D array of pieces
+
+Minimax
+* takes in a board, a move, and which player to move
+* if the move wins the game, return a 1
+* if not, it preforms the algorithm for all possible moves the other player can make recursively
+
+```
