@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from enum import Enum
 import copy
+import os
 
 class Piece(Enum):
     X = True
@@ -28,7 +29,7 @@ def redraw():
     for ch in disp_board:
         if ch == '%':
             piece = board[row][col]
-            to_disp.append(' ' if piece == Piece.Empty else 'X' if piece == Piece.Empty else 'O')
+            to_disp.append(' ' if piece == Piece.Empty else 'X' if piece == Piece.X else 'O')
             row = row + 1 if col == 2 else row
             col = 0 if col == 2 else col + 1
         else:
@@ -85,12 +86,66 @@ def minimax(board, playing, max_player):
     sub_move_results = []
     next_player = Piece.X if playing == Piece.O else Piece.O
     for m_row, m_col in get_valid_moves(board):
-        tmp_board = copy.deepcopy(board)
-        tmp_board[m_row][m_col] = playing
-        sub_move_results.append(minimax(tmp_board, next_player, max_player))
-   
+        board[m_row][m_col] = playing
+        sub_move_results.append(minimax(board, next_player, max_player))
+        board[m_row][m_col] = Piece.Empty
+
     return max(sub_move_results) if playing == max_player else min(sub_move_results)
     
+# parse and execute command from user
+def parse_and_exec_cmd(cmd):
+    # make sure command is valid
+    if len(cmd) != 2:
+        return False
+
+    col, row = (ord(cmd[0]) - ord('A')), (ord(cmd[1]) - ord('1'))
+    if not 0 <= col < 3 or not 0 <= row < 3:
+        return False
+    if not [row, col] in get_valid_moves(board):
+        return False
+
+    # execute command
+    board[row][col] = Piece.X
+    return True
+
+def computer_turn():
+    # find best move from minimax
+    best_row, best_col = -1, -1
+    best_val = -2
+    for move_row, move_col in get_valid_moves(board):
+        board[move_row][move_col] = Piece.O
+        val = minimax(board, Piece.X, Piece.O)
+        board[move_row][move_col] = Piece.Empty
+        if val > best_val:
+            best_val = val
+            best_row, best_col = move_row, move_col
+    
+    # make computers move
+    board[best_row][best_col] = Piece.O
+
 if __name__ == "__main__":
+    move_valid = True
+    while(check_winner(board) == None):
+        os.system('clear')
+        print("\r\n--------------- Welcome to Tic Tac Toe! ---------------")
+        redraw()
+        if not move_valid:
+            print("Invalid Move!")
+            move_valid = True
 
-
+        if parse_and_exec_cmd(input("Type in a position to play: ")):
+            if check_winner(board) == None:
+                computer_turn()
+            else:
+                break
+        else:
+            move_valid = False
+   
+    os.system('clear')
+    print("\r\n--------------- Welcome to Tic Tac Toe! ---------------")
+    redraw()
+    winner = check_winner(board)
+    if winner == Piece.Empty:
+        print("Tie!")
+    else:
+        print(('X' if winner == Piece.X else 'O') + " won!")
